@@ -1,5 +1,8 @@
 from scapy.all import *
 import copy
+import pickle
+import logging
+
 class TLVError(Exception):
     pass
 
@@ -27,7 +30,7 @@ class TLV:
             extend = maxi
             holder /= maxi
 
-        holdstr = chr(holder | extend) + holdstr
+        holdstr = chr(int(holder) | int(extend)) + holdstr
         return holdstr
 
     def _t(self, t):
@@ -35,34 +38,39 @@ class TLV:
             raise TLVError("type > 256 and no extension bit set")
         return self._int(t, self.t_ext)
 
-
     def _l(self, l):
         if self.l_ext == 0 and l > 256:
             raise TLVError("length > 256 and no extension bit set")
         return self._int(l, self.l_ext)
 
-
     def add(self, t, v, l=None):
-        deal_v = msg_dic[t][0]
-
-
         self.buffer += self._t(t)
         length = 0 if l is None else l
-
         if self.tl_in_l:
             length += t
-
         if l is None:
             length += len(v)
-
         self.buffer += self._l(length)
+        logging.debug("TLV object added value: {}".format(v))
         self.buffer += v
+
+    def add_obj(self, t, v, l=None):
+        new_buf = pickle.dumps(v)
+        # deal_v = msg_dic[t][0]
+        self.buffer += self._t(t)
+        length = 0 if l is None else l
+        if self.tl_in_l:
+            length += t
+        if l is None:
+            length += len(new_buf)
+        self.buffer += self._l(length)
+        logging.debug("TLV object added value: {}".format(v))
+        self.buffer += new_buf
 
     def pop_buf(self):
         buf = copy.deepcopy(self.buffer)
         self.buffer = ""
         return buf
-
 
     def __str__(self):
         return self.buffer
@@ -126,17 +134,35 @@ class TLVParser:
             try:
                 t, l, v = self._get_tlv()
                 yield {
-                "type": t,
-                "length": l,
-                "value": v,
+                "t": t,
+                "l": l,
+                "v": v,
                 }
             except TLVError:
                 self.add_buf(self.socket.recv(1024))
-                print('----recv again---')
+                logging.info("Incomplete buffer, recv(1024) again.")
             # yield is similar to return
             # the different thing is that yield is not "static"
             # after yield a value the function do not quit
             # instead it remain its status and waiting for the next call
+
+    def parse_obj(self):
+        while self.offset < len(self.buffer):
+            try:
+                t, l, v = self._get_tlv()
+                obj = pickle.loads(v)
+                yield {
+                "t": t,
+                "v": obj
+                }
+            except TLVError:
+                self.add_buf(self.socket.recv(1024))
+                logging.info("Incomplete buffer, recv(1024) again.")
+            # yield is similar to return
+            # the different thing is that yield is not "static"
+            # after yield a value the function do not quit
+            # instead it remain its status and waiting for the next call
+
 
     def set_socket(self,socket):
         self.socket = socket

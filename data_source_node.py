@@ -7,6 +7,8 @@ import config.parameters as para
 import config.msg_dic as md
 from lib.tlvtree import TLVTree
 from lib.TLV import *
+import sys
+
 class data_source_client:
 
 	def __init__(self,server_port):
@@ -31,7 +33,7 @@ class data_source_client:
 		except socket.error as error_msg:
 			print (error_msg)
 			sys.exit(1)
-		print s.recv(1024)
+		print(s.recv(1024))
 
 		# examine the filepath
 		if not os.path.isfile(filepath):
