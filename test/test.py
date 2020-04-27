@@ -112,6 +112,36 @@ import pickle
 # print(type(pkl))
 
 
-import logging
-logging.basicConfig(level=logging.NOTSET)
-logging.debug(u"ZZZZZZZZZZ")
+# import logging
+# logging.basicConfig(level=logging.NOTSET)
+# logging.debug(u"ZZZZZZZZZZ")
+
+
+# d = {('107.0.0.1',9000):0}
+# print(d.has_key(('107.0.0.1',9000)))
+# print(d.has_key(('107.0.0.2',9000)))
+# print(d[('107.0.0.2',9000)])
+
+
+
+class A:
+	def __init__(self,aa):
+		self.a = aa
+
+	def print_f(self):
+		print('A:',self.a)
+
+class B(A):
+	def __init__(self,aa,bb):
+		A.__init__(self,aa)
+		self.b = bb
+
+	def print_f(self):
+		print('A:',self.a)
+		print('B:', self.b)
+
+a = A(3)
+a.print_f()
+
+b = B(1,2)
+b.print_f()

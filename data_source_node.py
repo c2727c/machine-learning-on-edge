@@ -3,8 +3,8 @@ import pickle
 import os
 import struct
 
-import config.parameters as para
-import config.msg_dic as md
+import conf.parameters as para
+import conf.msg_dic as md
 from lib.tlvtree import TLVTree
 from lib.TLV import *
 import sys
