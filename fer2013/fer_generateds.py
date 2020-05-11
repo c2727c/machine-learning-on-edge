@@ -5,8 +5,7 @@ import os
 import random
 import pandas as pd
 import numpy as np
-import fer_config as config
-
+import fer2013.fer_config as config
 #将训练集和测试集分开
 def devide_train_data():
     data = pd.read_csv(config.data_path)
@@ -77,11 +76,13 @@ def generate_images_and_labels():
 def read_data(path):
     data = pd.read_csv(path)
     images=[np.array(p.split(" "),dtype=int) for p in data["pixels"]]
+    print(len(images[0]))
     labels=data["emotion"]
     return images,labels
 
 # 写入tfRecord文件
 def write_tfRecord(tfRecordName, image_path, label_path):
+    #### 【1】读出数行，打乱行序，contents是打乱行序之后的数据
     # 得到一个TFRecordWriter
     writer = tf.python_io.TFRecordWriter(tfRecordName)
     num_pic = 0
@@ -91,13 +92,14 @@ def write_tfRecord(tfRecordName, image_path, label_path):
     random.shuffle(contents)
     f.close()
     for content in contents:
+        #### 【2】从每一行中获得图片路径和标签值，读取文件得到对应图片字节数据img_raw,转换标签值得到标签向量labels
         value = content.split()
         img_path = image_path + value[0]
         img = Image.open(img_path).convert("L")
         img_raw = img.tobytes()
-        labels = [0] * 7
+        labels = [0] * 7#[0,0,0,0,0,0,0]
         labels[int(value[1])] = 1
-
+        #### 【3】以img_raw和labels生成一个tf.train.Example实例，并将它写入指定路径的TFRecord
         example = tf.train.Example(
             features=tf.train.Features(feature={
                 'img_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[img_raw])),
@@ -137,7 +139,7 @@ def read_tfRecord(tfRecord_path):
     return img,label
 
 
-# 批量读取数据
+# 批量读取数据【数据取用】输入batch_size，tfRecord_path来取用一定量的数据
 def get_tfrecord(num, tfRecord_path):
     img,label=read_tfRecord(tfRecord_path)
     img_batch,label_batch = tf.train.shuffle_batch([img,label],
@@ -147,9 +149,16 @@ def get_tfrecord(num, tfRecord_path):
                                                    min_after_dequeue=5000)
     return img_batch,label_batch
 
+##【数据生成】
 def main():
+    #第一步，将fer2013.csv按照标签分割成fer2013_train.csv / fer2013_valid.csv / fer2013_test.csv存入文件系统
     devide_train_data()
+    #第二步，再读入上述的三个文件，读出其图片列[]和标签列[]
+    # 图片，按照'编号_标签值' 的格式命名后存入指定路径       fer2013/train/???.png
+    # 标签，按照‘图片路径 标签值’的格式一行一行写入指定文件  fer2013/labels_train.txt
     generate_images_and_labels()
+    #第三步，再根据标签文件，一个个打开读取图片字节数据raw_img，生成标签向量，将这两个东西生成tf.Example，
+    # 写入预先规定路径TFRecord中
     generate_tfRecord()
 
 if __name__ == '__main__':

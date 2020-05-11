@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Edge Node</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery.js"></script>
+        <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+        <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+        <script>
+        $(document).ready(function(){
+            $("#feedback").hide();
+            $("#btn1").click(function(){
+                $.post("/model/run",
+                {
+                    path:$("#show_imp_path").text()
+                },
+                function(data,status){
+                    alert("数据: \n" + data + "\n状态: " + status);
+                    $("#ans").text("预测结果："+data)
+                    $("#feedback").show()
+                });
+            });
+            $("#btn2").click(function(){
+                $.post("/data/mark",
+                {
+                    label:$("input[name='fbr']:checked").val(),
+                    path:$("#show_imp_path").text()
+                });
+            });
+        });
+
+<!--        function abc(){$.get("/data",-->
+<!--                function(data,status){alert();}-->
+<!--                );}-->
+        </script>
+    </head>
+
+    <body>
+        <button onclick="window.location.href = 'http://localhost:5000/data'">管理数据集</button>
+
+        <h1> HELLO</h1>
+        <div>
+            <form method="post" action="http://localhost:5000/model/up_photo" enctype="multipart/form-data">
+            <input type="file" size="30" name="photo"/>
+            <br>
+            <input type="text" class="txt_input" name="name" style="margin-top:15px;"/>
+            <input type="submit" value="提交信息" class="button-new" style="margin-top:15px;"/>
+            </form>
+        </div>
+
+        {% if show_img_path %}
+        <img src={{show_img_url}} width="200" height="200"/>
+        <p>{{show_img_url}}</p>
+        <p id="show_imp_path">{{show_img_path}}</p>
+        <button id="btn1" type = "submit" >预测</button>
+        <p id="ans"></p>
+        <p id="feedback">
+            <input type="radio" name="fbr" value="0" checked>0
+            <input type="radio" name="fbr" value="1" >1
+            <input type="radio" name="fbr" value="2" >2
+            <input type="radio" name="fbr" value="3" >3
+            <input type="radio" name="fbr" value="4" >4
+            <input type="radio" name="fbr" value="5" >5
+            <input type="radio" name="fbr" value="5" >6
+            <input id="btn2" type="submit" value="提交信息" class="button-new" style="margin-top:15px;"/>
+         </p>
+
+        {% endif %}
+
+    </body>
+
+
+</html>

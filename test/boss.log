@@ -1,0 +1,3 @@
+2020-05-05 05:17:42,091 - root - WARNING - warning message
+2020-05-05 05:17:42,093 - root - ERROR - error message
+2020-05-05 05:17:42,093 - root - CRITICAL - critical

@@ -1,11 +1,11 @@
 # coding:utf-8
 import time
 import tensorflow as tf
-import fer_forward
-import fer_backward
-import fer_generateds
+import fer2013.fer_forward as fer_forward
+import fer2013.fer_config as config
+import fer2013.fer_generateds as fer_generateds
+import fer2013.fer_backward as fer_backward
 import numpy as np
-import fer_config as config
 
 TEST_INTERVAL_SECS = 5
 TEST_NUM = 3589

@@ -1,10 +1,10 @@
 import tensorflow as tf
-import fer_forward
+import fer2013.fer_forward as fer_forward
+import fer2013.fer_config as config
+import fer2013.fer_generateds as fer_generateds
 import os
-import fer_generateds
 import numpy as np
 import time
-import fer_config as config
 
 BATCH_SIZE = 128
 LEARNING_RATE_BASE = 0.0005
@@ -14,7 +14,7 @@ STEPS = 1000
 MOVING_AVERAGE_DECAY = 0.99
 train_num_examples=28709
 #定义反向传播
-def backward():
+def backward(batch_size = BATCH_SIZE, tfrecord_path = config.tfRecord_train,step_num = STEPS):
     # 输入x占位
     x = tf.placeholder(tf.float32, [BATCH_SIZE, config.img_width,
                                     config.img_height, fer_forward.NUM_CHANNELS])
@@ -54,8 +54,8 @@ def backward():
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     # 定义准确率
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    # 批量获取数据
-    img_batch,label_batch=fer_generateds.get_tfrecord(BATCH_SIZE,config.tfRecord_train)
+    # 批量获取数据 # FIXME
+    img_batch,label_batch=fer_generateds.get_tfrecord(batch_size,tfrecord_path)
     # 创建一个会话
     with tf.Session() as sess:
         # 变量初始化
@@ -72,7 +72,7 @@ def backward():
         coord=tf.train.Coordinator()
         # 启动入队线程
         threads=tf.train.start_queue_runners(sess=sess,coord=coord)
-        for i in range(STEPS):
+        for i in range(step_num):
             xs, ys = sess.run([img_batch,label_batch])
             # reshape 输入数据xs
             reshape_xs = np.reshape(xs, (BATCH_SIZE,

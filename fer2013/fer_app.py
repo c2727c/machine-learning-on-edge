@@ -4,24 +4,33 @@
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-import fer_forward
-import fer_backward
-import fer_config as config
+import fer2013.fer_forward as fer_forward
+import fer2013.fer_backward as fer_backward
+import fer2013.fer_config as config
 
 #面部表情类别
 classes={0:"Angry",1:"Disgust",2:"Fear",3:"Happy",4:"Sad",5:"Surprise",6:"Neutral"}
+
+def get_saver(variable_averages):
+    variables_to_restore = variable_averages.variables_to_restore()
+    saver = tf.train.Saver(variables_to_restore)
+    return saver
+
+def get_preValue(y):
+    preValue = tf.argmax(y, 1)
+    return preValue
 
 #使用保存的模型预测图片数值
 def restore_model(testPicArr):
     # 实例化一个数据流图并作为整个 tensorflow 运行环境的默认图
     with tf.Graph().as_default() as tg:
         # 输入x占位
-        x = tf.placeholder(tf.float32, [1, config.img_width,
+        input_holder_x = tf.placeholder(tf.float32, [1, config.img_width,
                                         config.img_height, fer_forward.NUM_CHANNELS])
         # 获得输出y的前向传播计算图
-        y=fer_forward.forward(x,False,None)
+        output_holder_y=fer_forward.forward(input_holder_x,False,None)
         # 定义预测值为y中最大值的索引号
-        preValue=tf.argmax(y,1)
+        preValue=tf.argmax(output_holder_y,1)
         # 定义滑动平均
         variable_averages=tf.train.ExponentialMovingAverage(fer_backward.MOVING_AVERAGE_DECAY)
         # 将影子变量直接映射到变量的本身
@@ -37,12 +46,12 @@ def restore_model(testPicArr):
             if ckpt and ckpt.model_checkpoint_path:
                 # 加载模型
                 saver.restore(sess, ckpt.model_checkpoint_path)
-                reshape_x = np.reshape(testPicArr, (1,
+                input_x = np.reshape(testPicArr, (1,
                                              config.img_width,
                                              config.img_height,
                                              fer_forward.NUM_CHANNELS))
                 # 计算预测值
-                preValue=sess.run(preValue,feed_dict={x:reshape_x})
+                preValue=sess.run(preValue,feed_dict={input_holder_x:input_x})
                 # 返回预测值
                 return preValue
             # 如果模型不存在
@@ -81,12 +90,7 @@ def application():
         # 输出预测结果
         print("The prediction class is: %s"%classes[preValue[0]])
 
-# predic one picture
-def run_app(testPic):
-    testPicArr=pre_pic(testPic)
-    preValue=restore_model(testPicArr)
-    print("The prediction class is: %s"%classes[preValue[0]])
-    return classes[preValue[0]]
+
 
 
 def main():

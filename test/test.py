@@ -122,26 +122,104 @@ import pickle
 # print(d.has_key(('107.0.0.2',9000)))
 # print(d[('107.0.0.2',9000)])
 
+#
+#
+# class A:
+# 	def __init__(self,aa):
+# 		self.a = aa
+#
+# 	def print_f(self):
+# 		print('A:',self.a)
+#
+# class B(A):
+# 	def __init__(self,aa,bb):
+# 		A.__init__(self,aa)
+# 		self.b = bb
+#
+# 	def print_f(self):
+# 		print('A:',self.a)
+# 		print('B:', self.b)
+#
+# a = A(3)
+# a.print_f()
+#
+# b = B(1,2)
+# b.print_f()
 
 
-class A:
-	def __init__(self,aa):
-		self.a = aa
+# import edge_src as es
+# print(es.init_fun())
+# print(es.init_para)
 
-	def print_f(self):
-		print('A:',self.a)
+import numpy as np
+# int_l = [1,2,3,4]
+# str_l =[str(i) for i in int_l]
+# s = " ".join(str_l)
+# print(s)
 
-class B(A):
-	def __init__(self,aa,bb):
-		A.__init__(self,aa)
-		self.b = bb
+# " ".join(l)
+# p = "1 2 3 4"
+# str_l = p.split(" ")
+# na = np.array(str_l,dtype=int)
+# nb = na.astype(np.string_)
+# print(na.dtype)
+# print(nb.dtype)
+# l2 = nb.tolist()
+# s = " ".join(l2)
+# print(s)
 
-	def print_f(self):
-		print('A:',self.a)
-		print('B:', self.b)
+# from PIL import Image
+# img = Image.open('C:\\Users\\ezhayuc\\Desktop\\repo\\whostheme\\machine-learning-on-edge\\edge_src\\data\\upload-img\\2020050117281999.PNG').convert('L')
+# print(img)
+# new_img = img.resize((48, 48))
+# print(new_img)
+# print(img)
 
-a = A(3)
-a.print_f()
 
-b = B(1,2)
-b.print_f()
+# a = (1,2)
+# print(a[0])
+
+
+# bs = bytearray([1,2])
+# bs2 = bytes([3,4])
+# print(bs)
+# bs+=bs2
+#
+#
+# print(bs)
+
+
+# print(ord('\xc2'))
+# print(ord('\x81'))
+# print(ord('I'))
+# print(ord('V'))
+# print(chr(201))
+# print(bytes(chr(48).encode()))
+# print(chr(bytes(chr(48).encode())[0]))
+
+import logging
+
+
+logger = logging.getLogger()
+sh = logging.StreamHandler()
+formater = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+sh.setFormatter(formater)
+logger.addHandler(sh)
+logger.setLevel(10)
+
+logging.debug('debug message')
+logging.info('info message')
+logging.warning('warning message')
+logging.error('error message')
+logging.critical('critical')
+
+
+print(type(1))
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print(type(s))
+print(type(object()))
+
+
+ba = bytearray()
+b = bytes(1)
+print(int(b))
