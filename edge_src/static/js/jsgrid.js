@@ -43,61 +43,114 @@ function setjsg(){
     });
 }
 
+var modelGridPara = {
+    height: "auto",
+    width: "100%",
+    sorting: true,
+    paging: true,
+    autoload: true,
+    pageSize: 10,
+    pageButtonCount: 5,
+    deleteConfirm: "Do you really want to delete your job listing?",
+    controller: {
+       loadData: function() {
+           return $.get("/model/list");
+       },
+    },
+    fields: [
+        { name: "filename", title: "模型名称", type: "text", visible: true, width: 100 },
+        { name: "size", title: "文件大小", type: "number", width: 100 },
+        { name: "mtime",formatter:"date",
+            formatoptions: {newformat:'Y-m-d'},title: "修改时间", width: 100 },
+        { name: "status", type: "text", title: "同步状态", width: 100 },
+        { name:"操作", type: "control", width: 100, editButton: true, deleteButton: false,
+             itemTemplate: function(value, item) {
+                var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                var $customButton1 = $("<button>")
+                    .html('下载')
+                    .click(function(e) {
+                    $.get("/model/download?fname="+item.filename);
+                    alert("ID: " + item.filename);
+                    e.stopPropagation();
+                });
+               var $customButton2 = $("<button>")
+                    .html('训练')
+                    .click(function(e) {
+                       alert("ID: " + item.filename);
+                       e.stopPropagation();
+                    });
+               var $customButton3 = $("<button>")
+                    .html('设为当前')
+                    .click(function(e) {
+                       alert("ID: " + item.filename);
+                       e.stopPropagation();
+                    });
+                return $("<div>")
+                        .append($customButton1)
+                        .append($customButton2)
+                        .append($customButton3);
+            },
+        }
+    ]
+};
+
+var dataGridPara = {
+    height: "auto",
+    width: "100%",
+    sorting: true,
+    paging: true,
+    autoload: true,
+    pageSize: 10,
+    pageButtonCount: 5,
+    deleteConfirm: "Do you really want to delete your job listing?",
+    controller: {
+       loadData: function() {
+           return $.get("/data/list");
+       },
+    },
+    fields: [
+        { name: "filename", title: "模型名称", type: "text", visible: true, width: 100 },
+        { name: "size", title: "文件大小", type: "number", width: 100 },
+        { name: "mtime",formatter:"date",
+            formatoptions: {newformat:'Y-m-d'},title: "修改时间", width: 100 },
+        { name: "status", type: "text", title: "同步状态", width: 100 },
+        { name:"操作", type: "control", width: 100, editButton: true, deleteButton: false,
+             itemTemplate: function(value, item) {
+                var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                var $customButton1 = $("<button>")
+                    .html('上传')
+                    .click(function(e) {
+                    $.get("/data/upload_to_cloud?fname="+item.filename)
+                    alert("ID: " + item.filename);
+                    e.stopPropagation();
+                });
+               var $customButton2 = $("<button>")
+                    .html('训练')
+                    .click(function(e) {
+                       alert("ID: " + item.filename);
+                       e.stopPropagation();
+                    });
+               var $customButton3 = $("<button>")
+                    .html('设为当前')
+                    .click(function(e) {
+                       alert("ID: " + item.filename);
+                       e.stopPropagation();
+                    });
+                return $("<div>")
+                        .append($customButton1)
+                        .append($customButton2)
+                        .append($customButton3);
+            },
+        }
+    ]
+};
 
 
 function setjsg2(){
-    $("#jsGrid").jsGrid({
-       height: "auto",
-       width: "100%",
-       sorting: true,
-       paging: true,
-       autoload: true,
-       pageSize: 10,
-       pageButtonCount: 5,
-       deleteConfirm: "Do you really want to delete your job listing?",
-//       controller: {
-//           loadData: function(filter) {
-//               return $.ajax({
-//                   type: "GET",
-//                   url: "<?php echo site_url('/job/getjobs/'.$this->session->employer_id); ?>",
-//                   data: filter
-//               });
-//           },
-//       },
-        data: datas,
-        fields: [
-            { name: "id", title: "id", type: "text", visible: true, width: 100 },
-            { name: "title", title: "Title", type: "text", width: 100 },
-            { name: "is_active", type: "text", title: "Is Active", width: 100 },
-            { name:"操作", type: "control", width: 100, editButton: true, deleteButton: false,
-                 itemTemplate: function(value, item) {
-                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                    var $customButton1 = $("<button>")
-                        .html('上传')
-                        .click(function(e) {
-                        alert("ID: " + item.id);
-                        e.stopPropagation();
-                    });
-                   var $customButton2 = $("<button>")
-                        .html('训练')
-                        .click(function(e) {
-                           alert("Title: " + item.title);
-                           e.stopPropagation();
-                        });
-                   var $customButton3 = $("<button>")
-                        .html('设为当前')
-                        .click(function(e) {
-                           alert("Title: " + item.title);
-                           e.stopPropagation();
-                        });
-                    return $("<div>")
-                            .append($customButton1)
-                            .append($customButton2)
-                            .append($customButton3);
-                },
-            }
-        ]
-    });
+    $("#jsGrid").jsGrid(modelGridPara);
 }
 
+function setjsg_data(){
+    $("#jsGrid").jsGrid(dataGridPara);
+}
 

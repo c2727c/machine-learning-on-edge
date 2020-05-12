@@ -200,26 +200,31 @@ import numpy as np
 import logging
 
 
-logger = logging.getLogger()
-sh = logging.StreamHandler()
-formater = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-sh.setFormatter(formater)
-logger.addHandler(sh)
-logger.setLevel(10)
+# logger = logging.getLogger()
+# sh = logging.StreamHandler()
+# formater = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# sh.setFormatter(formater)
+# logger.addHandler(sh)
+# logger.setLevel(10)
+#
+# logging.debug('debug message')
+# logging.info('info message')
+# logging.warning('warning message')
+# logging.error('error message')
+# logging.critical('critical')
+#
+#
+# print(type(1))
+# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# print(type(s))
+# print(type(object()))
+#
+#
+# ba = bytearray()
+# b = bytes(1)
+# print(int(b))
 
-logging.debug('debug message')
-logging.info('info message')
-logging.warning('warning message')
-logging.error('error message')
-logging.critical('critical')
 
 
-print(type(1))
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print(type(s))
-print(type(object()))
-
-
-ba = bytearray()
-b = bytes(1)
-print(int(b))
+a = 1<<8
+print(a)

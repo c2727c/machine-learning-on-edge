@@ -12,11 +12,12 @@ FILEPATH = os.path.join(BASEDIR,
                         'ai_challenger_wf2018_testb1_20180829-20181028.nc')
 EDGE_MODEL_SAVE_PATH =  os.path.join(BASEDIR,
                         'edge_src','data','model')
+EDGE_DATA_SAVE_PATH =  os.path.join(BASEDIR,
+                        'edge_src','data','dataset')
 CLOUD_MODEL_SAVE_PATH =  os.path.join(BASEDIR,
                         'cloud_src','data','model')
-
-T_EXT = 7
-L_EXT = 7
+CLOUD_DATA_SAVE_PATH =  os.path.join(BASEDIR,
+                        'cloud_src','data','dataset')
 
 
 #edge_node_status

@@ -17,19 +17,34 @@ import conf.msg_dic as md
 
 from lib.macro import *
 
+def merge_list_with_mark(l_e,l_c,mark = ['on_edge','on_cloud','on_both']):
+	i = 0
+	for l_e_i in l_e:
+		l_e_i['status'] = mark[0]
+	for l_c_i in l_c:
+		flag = True
+		for l_e_i in l_e:
+			if l_c_i['filename'] == l_e_i['filename']:
+				l_e_i['status'] =  mark[2]
+				flag = False
+		if (flag):
+			l_c_i['status'] = mark[1]
+			l_e.append(l_c_i)
+
 class EdgeServer(NetDeviceBase,FileManagerBase):
 
 	def __init__(self, server_addr, cloud_addr):
 		NetDeviceBase.__init__(self, server_addr)
 		self.cloud_addr = cloud_addr
 		self.model_save_path = para.EDGE_MODEL_SAVE_PATH
+		self.data_save_path = para.EDGE_DATA_SAVE_PATH
 
 	def deal_conn(self, conn):
 		logging.debug('EdgeNode - deal conn ...')
 		while True:
 			buf = conn.recv(1024)
 			if buf:
-				tlvp = TLVParser(t_ext=7, l_ext=7, socket=conn)
+				tlvp = TLVParser(socket=conn)
 				tlvp.add_buf(buf)
 				for msg in tlvp.parse_obj():
 					logging.debug("MSG = tlvp.parse_obj(): {}".format(msg))
@@ -38,7 +53,6 @@ class EdgeServer(NetDeviceBase,FileManagerBase):
 					else:
 						logging.error("Upload failed: Unrecognized request.")
 			logging.info("deal_conn:end one round.")
-			# conn.close()
 			break
 
 	def deal_send_data_request(self, conn, msg, folder='../../test/edge_node'):
@@ -56,42 +70,18 @@ class EdgeServer(NetDeviceBase,FileManagerBase):
 			self.tlv_obj.add(md.SEND_DATA_REJ, '')
 			conn.send(self.tlv_obj.pop_buf())
 
-	def get_model_list_request(self):
-		cf_list,cf_size_lizt,cf_time_list = self.get_remote_model_list(self.cloud_addr)
-		ef_list,ef_size_lizt,ef_time_list = self.listdir(self.model_save_path)
-		i = 0
-		while i<len(cf_list):
-			if cf_list[i] in ef_list:
-				del cf_list[i]
-				del cf_size_lizt[i]
-				del cf_time_list[i]
-			else:
-				i = i+1
-		cf_stat_list = [0] * len(cf_list)
-		ef_stat_list = [1 for i in range(len(ef_list))]
-		f_list = ef_list+cf_list
-		f_size_lizt = ef_size_lizt + cf_size_lizt
-		f_time_list = ef_time_list + cf_time_list
-		f_stat_list = ef_stat_list+cf_stat_list
-		return f_list,f_size_lizt,f_time_list,f_stat_list
+	def get_data_list_request(self):
+		logging.debug('get_data_list_request - start!!')
+		l_c = self.get_remote_file_list(self.cloud_addr,'data')
+		l_e = self.listdir2(self.data_save_path)
+		merge_list_with_mark(l_e,l_c)
+		return l_e
 
 	def get_model_list_request2(self):
 		logging.debug('get_model_list_request2 - start!!')
-		l_c = self.get_remote_model_list2(self.cloud_addr)
+		l_c = self.get_remote_file_list(self.cloud_addr,'model')
 		l_e = self.listdir2(self.model_save_path)
-		i = 0
-		while i<len(l_c):
-			if l_c[i] in l_e:
-				del l_c[i]
-			else:
-				i = i+1
-		for i in range(len(l_c)):
-			logging.debug('l_c[i]:{}'.format(l_c[i]))
-			for j in range(len(l_e)):
-				if l_c[i] == l_e[j]:
-					l_e[j]['status']='on_edge'
-			l_c[i]['status']='on_cloud'
-			l_e.append(l_c[i])
+		merge_list_with_mark(l_e,l_c)
 		return l_e
 
 	def download_model_request(self,fname):
@@ -110,22 +100,4 @@ class EdgeServer(NetDeviceBase,FileManagerBase):
 if __name__ == '__main__':
 	es = EdgeServer((para.EDGE_SERVER_IP, para.EDGE_SERVER_PORT),
 	                (para.CLOUD_SERVER_IP, para.CLOUD_SERVER_PORT))
-	# es2 = EdgeServer((para.EDGE_SERVER_IP, 6980),
-	#                  (para.CLOUD_SERVER_IP, para.CLOUD_SERVER_PORT))
-	# es.start()
-	# time.sleep(5)
-	# es.connect_and_upload_file(para.FILEPATH, es.cloud_addr)
-	# # es2.connect_and_upload_file(para.FILEPATH2, es.cloud_addr)
-	# l,l_size,l_mtime = es.listdir('../')
-	print(es.get_model_list_request2())
-	# es.download_model('modeloncloud')
-	# print(es.get_model_list())
-
-
-
-
-# es.download_model()
-# es.get_cloud_status()
-# es.start_training()
-# es.stop_training()
-# es.manage_local_models()
+	print(es.get_data_list_request())

@@ -13,10 +13,7 @@ def allowed_file(filename):
 
 @app.route('/model')
 def model_page():
-	f_list,f_size_lizt,f_time_list,f_stat_list = edge_server.get_model_list_request()
-	col_list = [f_list,f_size_lizt,f_time_list,f_stat_list]
-	print(col_list)
-	return render_template('data.html', table_col_list=col_list)
+	return render_template('model.html')
 
 
 
@@ -79,9 +76,12 @@ return:[模型id，模型大小，生成时间，是否存在边缘]的列表
 '''
 
 
-@app.route('/model/list', methods=['POST'], strict_slashes=False)
+@app.route('/model/list', methods=['GET','POST'], strict_slashes=False)
 def get_model_list():
-	return edge_server.get_model_list_request()
+	f_list = edge_server.get_model_list_request2()
+	print(f_list)
+	return jsonify(f_list)
+
 
 
 '''下载模型
@@ -90,11 +90,11 @@ action:
 1.向云服务器发出请求，expect 一个DATA_SEND_REQ 然后 deal_data_send_req
 return:
 '''
-@app.route('/model/download', methods=['POST'], strict_slashes=False)
+@app.route('/model/download', methods=['GET','POST'], strict_slashes=False)
 def download_model():
-	form = request.values
-	model_fname = form.get['fname']
+	model_fname = request.values.get('fname')
 	edge_server.download_model_request(model_fname)
+	return 'OK'
 
 
 '''训练模型

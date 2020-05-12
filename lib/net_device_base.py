@@ -9,7 +9,7 @@ import conf.msg_dic as md
 
 
 def send_msg(skt, type, body):
-	tlv_obj = TLV(t_ext=7, l_ext=7)
+	tlv_obj = TLV()
 	tlv_obj.add_obj(type, body)
 	msg = tlv_obj.pop_buf()
 	logging.debug('send_msg:| type-{} | length--{} | value-{} |'.format(type,len(msg), body))
@@ -31,7 +31,7 @@ def expect_msg(conn, exp_type):
 		buf = conn.recv(1024)
 		if buf:
 			logging.debug('expect_msg!: valid buf!{}'.format(buf))
-			tlvp = TLVParser(t_ext=7, l_ext=7, socket=conn)
+			tlvp = TLVParser(socket=conn)
 			logging.debug('expect_msg!: new tlvp.buffer!{}'.format(tlvp.buffer))
 			tlvp.add_buf(buf)
 			logging.debug('expect_msg!: added tlvp.buffer!{}'.format(tlvp.buffer))
@@ -59,7 +59,7 @@ class NetDeviceBase:
 
 	def __init__(self, server_addr):
 		self.server_addr = server_addr
-		self.tlv_obj = TLV(t_ext=7, l_ext=7)
+		self.tlv_obj = TLV()
 		self.tcp_clients_dict = {}
 		# self.udp_clients_dict = {}
 
@@ -141,21 +141,6 @@ class NetDeviceBase:
 
 
 class FileManagerBase:
-	@staticmethod
-	def listdir(dirpath, rdb=None):
-		l = []
-		l_size = []
-		l_mtime = []
-		root, dirs, files = next(os.walk(dirpath))
-		# print("root:{}\ndirs:{}\nfiles:{}\n".format(root, dirs, files))
-		for f in files:
-			f_info = os.stat(os.path.join(root,f))
-			if rdb and os.path.splitext(f)[1].upper() != rdb.upper():
-				continue
-			l.append(f)
-			l_size.append(f_info.st_size)
-			l_mtime.append(f_info.st_mtime)
-		return l,l_size,l_mtime
 
 	@staticmethod
 	def listdir2(dirpath, rdb=None):
@@ -170,22 +155,11 @@ class FileManagerBase:
 		return l
 
 	@staticmethod
-	def get_remote_model_list(addr):
+	def get_remote_file_list(addr,type):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		if try_connect_and_send_msg(s, addr, md.GET_MODEL_LIST_REQ, ''):
+		if try_connect_and_send_msg(s, addr, md.GET_MODEL_LIST_REQ, type):
 			msg = expect_msg(s, md.GET_MODEL_LIST_CFM)
-			s.close()
-			if msg:
-				return msg['v']
-		s.close()
-		return None
-
-	@staticmethod
-	def get_remote_model_list2(addr):
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		if try_connect_and_send_msg(s, addr, md.GET_MODEL_LIST_REQ, ''):
-			msg = expect_msg(s, md.GET_MODEL_LIST_CFM)
-			logging.debug('get_remote_model_list2:msg:{}'.format(msg))
+			logging.debug('get_remote_file_list:msg:{}'.format(msg))
 			s.close()
 			if msg:
 				return msg['v']

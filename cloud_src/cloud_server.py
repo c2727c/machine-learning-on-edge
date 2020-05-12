@@ -29,6 +29,7 @@ class CloudServer(NetDeviceBase,FileManagerBase):
 	def __init__(self, server_ip, server_port):
 		NetDeviceBase.__init__(self, (server_ip, server_port))
 		self.model_save_path = para.CLOUD_MODEL_SAVE_PATH
+		self.data_save_path = para.CLOUD_DATA_SAVE_PATH
 
 	def deal_addr(self,addr):
 		logging.debug('CloudServer - deal addr ...')
@@ -45,7 +46,7 @@ class CloudServer(NetDeviceBase,FileManagerBase):
 		while True:
 			buf = conn.recv(1024)
 			if buf:
-				tlvp = TLVParser(t_ext=7, l_ext=7, socket=conn)
+				tlvp = TLVParser(socket=conn)
 				tlvp.add_buf(buf)
 				for msg in tlvp.parse_obj():
 					logging.debug("CloudServer - deal_conn: new msg:{} ".format(msg))
@@ -73,19 +74,20 @@ class CloudServer(NetDeviceBase,FileManagerBase):
 			# 返回cfm
 			send_msg(conn, md.SEND_DATA_CFM, '')
 			# 接收文件
-			new_filename = os.path.join('../test/cloud_server', fname)
+			new_filename = os.path.join(self.data_save_path, fname)
 			logging.info('Prepared to receive file! new filename:{0}, filesize:{1}'.format(new_filename, fsize))
 			recv_file(socket=conn, filename=new_filename, filesize=fsize)
 			logging.info('end receiving...')
 		else:
 			send_msg(conn, md.SEND_DATA_REJ, '')
 
-	def deal_get_model_list_req(self, conn, msg):
-		l_3 = self.listdir(self.model_save_path)
-		send_msg(conn,md.GET_MODEL_LIST_CFM,l_3)
-
 	def deal_get_model_list_req2(self, conn, msg):
-		l = self.listdir2(self.model_save_path)
+		type = msg['v']
+		l=''
+		if type =='model':
+			l = self.listdir2(self.model_save_path)
+		elif type == 'data':
+			l = self.listdir2(self.data_save_path)
 		send_msg(conn,md.GET_MODEL_LIST_CFM,l)
 
 	def deal_get_model_req(self, conn, msg):

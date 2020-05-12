@@ -8,58 +8,30 @@ class TLVError(Exception):
 
 
 class TLV:
-    def __init__(self, t_ext=0, l_ext=0):
+    def __init__(self, t_len=2, l_len=2):
         self.buffer = bytearray()
-        self.t_ext = t_ext
-        self.l_ext = l_ext
+        self.t_len = t_len
+        self.l_len = l_len
+        self.l_len = l_len
 
-    def _int(self, i, ext):
-        maxi = 1<<8
-        if ext > 0:
-            maxi = (1 << ext)
-        holdstr = ""
-        holder = i 
-        extend = 0 
-        count = 1 
-        while holder >= maxi:
-            count += 1
-            newnum = (holder & (maxi - 1)) 
-            holdstr = chr(newnum | extend) + holdstr
-            extend = maxi
-            holder /= maxi
+    def _int(self, i, len):
+        try:
+            return  i.to_bytes(len, byteorder='big')
+        except OverflowError as e:
+            logging.error('OverflowError!:type or length to_buffer failed.')
 
-        holdstr = chr(int(holder) | int(extend)) + holdstr
-        # logging.debug("int():{}-->{}".format(i, holdstr))
-        print(holdstr.encode())
-        return holdstr.encode()
-
-    def _t(self, t):
-        if self.t_ext == 0 and t > 256:
-            raise TLVError("type > 256 and no extension bit set")
-        return self._int(t, self.t_ext)
-
-    def _l(self, l):
-        if self.l_ext == 0 and l > 256:
-            raise TLVError("length > 256 and no extension bit set")
-        return self._int(l, self.l_ext)
-
-    def add(self, t, v, l=None):
-        self.buffer += self._t(t)
-        length = 0 if l is None else l
-        if l is None:
-            length += len(v)
-        self.buffer += self._l(length)
+    def add(self, t, v):
+        self.buffer += self._int(t,self.t_len)
+        l = len(v)
+        self.buffer += self._int(l,self.l_len)
         # logging.debug("TLV object added value: {}".format(v))
         self.buffer += v
 
-    def add_obj(self, t, v, l=None):
+    def add_obj(self, t, v):
         new_buf = pickle.dumps(v)
-        # deal_v = msg_dic[t][0]
-        self.buffer += self._t(t)
-        length = 0 if l is None else l
-        if l is None:
-            length += len(new_buf)
-        self.buffer += self._l(length)
+        self.buffer += self._int(t,self.t_len)
+        l = len(new_buf)
+        self.buffer += self._int(l,self.l_len)
         # logging.debug("TLV object added value: {},{}".format(t,v))
         self.buffer += new_buf
 
@@ -77,49 +49,29 @@ class TLV:
 
 
 class TLVParser:
-    def __init__(self, buffer=bytearray(), t_ext=0, l_ext=0, socket=0):
+    def __init__(self, buffer=bytearray(), t_len=2, l_len=2, socket=0):
         self.buffer =bytearray()
-        self.t_ext = t_ext
-        self.l_ext = l_ext
+        self.t_len = t_len
+        self.l_len = l_len
         self.offset = 0
         self.socket = socket
 
 
-    def _get_i(self, i_ext):
-        o_offset = self.offset
+    def _get_i(self, len):
         try:
-            byte = self.buffer[self.offset]
-        except IndexError:
-            # If the IndexError is raised when the offset>=len
-            
-            raise TLVError("Not enough data")
-        # Otherwise,'byte' is the next byte of data now
-        # if i_ext=7, ext =     1000 0000(last i_ext(7) bits are 0) 
-        #           ext-1 =     0111 1111(last i_ext(7) bits are 1) 
-        # Otherwise,  ext = (1) 0000 0000
-        ext = 1 << (i_ext if i_ext > 0 else 8)
-        i = 0
-        # copying data of i_ext
-        while byte & ext:
-            i += (byte & (ext - 1))#take the last i_ext(7) bits of the cur_byte
-            i <<= i_ext#left shift i_ext bits,got i_ext(7) bits empty in the end
-            self.offset += 1#moves to next cur_byte
-            try:
-                byte = self.buffer[self.offset]
-            except IndexError:
-                raise TLVError("Not enough data")
-        i += byte
-        self.offset += 1
-        bts = self.buffer[o_offset:self.offset]
-        # logging.debug("get_i():{}-->{}".format(bts,i))
-        return i
+            o_offset = self.offset
+            self.offset += len
+            i = int.from_bytes(self.buffer[o_offset:self.offset],byteorder='big')
+            return i
+        except Exception as e:
+            logging.error('_get_i: get type or length failed!')
 
 
     def _get_tlv(self):
         off = self.offset
-        t = self._get_i(self.t_ext)
+        t = self._get_i(self.t_len)
         logging.debug("try get tlv!:t:{}".format(t))
-        l = self._get_i(self.l_ext)
+        l = self._get_i(self.l_len)
         logging.debug("try get tlv!:l:{}".format(l))
         if self.offset + l > len(self.buffer):
             self.offset = off

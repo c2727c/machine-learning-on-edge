@@ -47,9 +47,7 @@ def listdir(dirpath,rdb=None):
 
 @app.route('/data')
 def data_page():
-	l = listdir(app.config['DATASET_COLLECTING_FOLDER'])
-	print(l)
-	return render_template('data.html', table_col_list=[l])
+	return render_template('data.html')
 
 @app.route('/data2')
 def data_page2():
@@ -88,12 +86,11 @@ input:
 action:搜索目录下的文件，返回列表 json？
 return:数据集目录下的文件
 '''
-@app.route('/data/csvlist', methods=['POST'], strict_slashes=False)
+@app.route('/data/list', methods=['GET','POST'], strict_slashes=False)
 def get_dataset_csvlist():
-	folder_path = app.config['DATASET_COLLECTING_FOLDER']
-	filelist = listdir(folder_path,'CSV')
-	pass
-
+	f_list = edge_server.get_data_list_request()
+	print(f_list)
+	return jsonify(f_list)
 
 '''
 由边缘端向云上传数据集
@@ -103,10 +100,10 @@ return:
 '''
 
 
-@app.route('/data/upload_to_cloud', methods=['POST'], strict_slashes=False)
+@app.route('/data/upload_to_cloud', methods=['GET','POST'], strict_slashes=False)
 def upload_data():  # TODO
 	form = request.values
-	f_name = form.get("filename")
+	f_name = form.get("fname")
 	print(f_name)
 	f_path = os.path.join(app.config['DATASET_COLLECTING_FOLDER'], f_name)
 	print(f_path)
