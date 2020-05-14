@@ -47,7 +47,7 @@ def listdir(dirpath,rdb=None):
 
 @app.route('/data')
 def data_page():
-	return render_template('data.html')
+	return render_template('data.html',current_dataset=app.config['DATASET_COLLECTING_CSV'])
 
 @app.route('/data2')
 def data_page2():

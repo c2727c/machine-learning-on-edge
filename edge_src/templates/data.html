@@ -17,10 +17,14 @@
     <!--  MENU  -->
     <link type="text/css" rel="stylesheet" href="static/css/menu.css"/>
     <script type="text/javascript" src="static/js/menu.js"></script>
+     <!--  POP_UP  -->
+    <script type="text/javascript" src="static/js/macro.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/macro.css">
 
     <script>
     $(document).ready(function(){
         setjsg_data();
+        pop_up_ready();
     });
     </script>
 </head>
@@ -35,15 +39,34 @@
     <a href="/setting">设置</a>
     </div>
     <div id="main">
-    <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; MENU</span>
+    <span style="font-size:30px;cursor:pointer;color:black" onclick="openNav()">&#9776; MENU</span>
     <h2>数据集管理 - FER2013</h2>
-    <p>点击以下菜单图标打开侧边栏，主体内容向右偏移。主体内容添加黑色透明背景</p>
-    <table border="2">
-        <thead>TABLE</thead>
-        <tbody id = "tbody1"></tbody>
-    </table>
+
     <div id="jsGrid"></div>
+    <p align="right">当前收集数据集：     <label>{{current_dataset}}</label></p>
     </div>
+	<!-- 弹窗内容开始 -->
+	<div id="background" class="back">
+		<div id="div1" class="content">
+			<div id="close">
+				<span id="close-button">×</span>
+				<h3>训练</h3>
+			</div>
+			<div id="div2">
+                <form method="post" action="/model/train" enctype="multipart/form-data">
+                <p> </p>
+                <p><label>训练步数：&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</label>
+                <input type="text" class="txt_input" name="training_steps"/></p>
+                <p><label>BATCH SIZE：</label>
+                <input type="text" class="txt_input" name="batch_size"/></p>
+                <p>Train from Scratch<input type="checkbox" name="from_scratch"></p>
+                <input id = "input_id" type="hidden" name="item_id">
+                <p align="right"><input type="submit" value="提交信息" class="button-new" style="margin-top:15px;"/><p/>
+
+                </form>
+            </div>
+		</div>
+	</div>
 </body>
 
 

@@ -13,9 +13,7 @@ def allowed_file(filename):
 
 @app.route('/model')
 def model_page():
-	return render_template('model.html')
-
-
+	return render_template('model.html',current_model = app.config['CURRENT_MODEL'])
 
 '''
 上传实时推断所需图片
@@ -109,11 +107,10 @@ return:成功+新模型id/失败
 
 @app.route('/model/train', methods=['POST'], strict_slashes=False)
 def api_train_model():
-	# model_path = os.path.join(app.config['MODEL_FOLDER'],
-	#                         app.config['MODEL'])# FIXME
 	form = request.values
-	dataset_name = form.get("dataset")
-	steps = form.get("steps")
+	dataset_name = form.get("item_id")
+	steps = form.get("training_steps")
+	batch_size = form.get("batch_size")
 	train_from_scratch = form.get("from_scratch")
-	edge_server.train_model_request(dataset_name,steps,train_from_scratch)
-	return "OK"
+	# edge_server.train_model_request(dataset_name,steps,train_from_scratch)
+	return "OK:{};{};{};{};".format(dataset_name,steps,batch_size,train_from_scratch)

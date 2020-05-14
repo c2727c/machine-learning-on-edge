@@ -13,10 +13,10 @@ app.config['UPLOAD_FOLDER'] = os.path.join(BASEDIR,'data', 'upload-img')
 app.config['DATASET_COLLECTING_FOLDER'] = os.path.join(BASEDIR,'data', 'dataset')
 app.config['DATASET_COLLECTING_CSV'] = 'FER2013_NEW_DATASET.CSV'
 app.config['MODEL_FOLDER'] = para.EDGE_MODEL_SAVE_PATH
-
+app.config['CURRENT_MODEL'] = 'modelonedge'
 
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'JPG', 'PNG'])
 app.config['IMG_SHAPE'] = (48,48) #前行后列，前高后宽
-from edge_src import route_data,route_hello,route_model
+from edge_src import route_data,route_hello,route_model,route_setting
 
 

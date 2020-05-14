@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>弹窗</title>
+    <!--  jQuery,Bootstrap  -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <!--   jsGrid CDN    -->
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="static/css/macro.css">
+	<script type="text/javascript" src="static/js/macro.js"></script>
+	<script>
+		$(document).ready(function(){
+        pop_up_reday();
+        });
+	</script>
+</head>
+<body>
+
+	<button id="open_btn" class="btn">弹窗</button>
+	<!-- 弹窗内容开始 -->
+	<div id="background" class="back">
+		<div id="div1" class="content">
+			<div id="close">
+				<span id="close-button">×</span>
+				<h2>弹窗头部</h2>
+			</div>
+			<div id="div2">
+				<h3>弹窗标题</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste, ullam, nisi, enim laboriosam ea cum necessitatibus ipsum cupiditate neque soluta qui autem odit eligendi blanditiis voluptatem repellat suscipit quia perspiciatis.</p>
+			</div>
+			<h3 id="foot">底部内容</h3>
+		</div>
+	</div>
+</body>
+</html>

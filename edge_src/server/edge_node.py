@@ -11,25 +11,13 @@ logger.setLevel(10)
 import conf.parameters as para
 from lib.net_device_base import \
 	NetDeviceBase,FileManagerBase,try_connect_and_send_msg,\
-	expect_msg,send_msg
+	expect_msg,send_msg,recv_data
 
 import conf.msg_dic as md
 
 from lib.macro import *
 
-def merge_list_with_mark(l_e,l_c,mark = ['on_edge','on_cloud','on_both']):
-	i = 0
-	for l_e_i in l_e:
-		l_e_i['status'] = mark[0]
-	for l_c_i in l_c:
-		flag = True
-		for l_e_i in l_e:
-			if l_c_i['filename'] == l_e_i['filename']:
-				l_e_i['status'] =  mark[2]
-				flag = False
-		if (flag):
-			l_c_i['status'] = mark[1]
-			l_e.append(l_c_i)
+
 
 class EdgeServer(NetDeviceBase,FileManagerBase):
 
@@ -63,9 +51,8 @@ class EdgeServer(NetDeviceBase,FileManagerBase):
 			send_msg(conn,md.SEND_DATA_CFM, '')
 			new_filename = os.path.join(folder, fname)
 			logging.info('Prepared to receive file! new filename:{0}, filesize:{1}'.format(new_filename, fsize))
-			recv_file(socket=conn, filename=new_filename, filesize=fsize)
+			recv_data(socket=conn, filename=new_filename, filesize=fsize)
 			logging.info('end receiving...')
-
 		else:
 			self.tlv_obj.add(md.SEND_DATA_REJ, '')
 			conn.send(self.tlv_obj.pop_buf())
@@ -74,19 +61,19 @@ class EdgeServer(NetDeviceBase,FileManagerBase):
 		logging.debug('get_data_list_request - start!!')
 		l_c = self.get_remote_file_list(self.cloud_addr,'data')
 		l_e = self.listdir2(self.data_save_path)
-		merge_list_with_mark(l_e,l_c)
+		self.merge_list_with_mark(l_e,l_c)
 		return l_e
 
 	def get_model_list_request2(self):
 		logging.debug('get_model_list_request2 - start!!')
 		l_c = self.get_remote_file_list(self.cloud_addr,'model')
 		l_e = self.listdir2(self.model_save_path)
-		merge_list_with_mark(l_e,l_c)
+		self.merge_list_with_mark(l_e,l_c)
 		return l_e
 
 	def download_model_request(self,fname):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		if try_connect_and_send_msg(s, self.cloud_addr, md.GET_MODEL_REQ, fname):
+		if try_connect_and_send_msg(s, self.cloud_addr, md.GET_FILE_REQ, fname):
 			msg = expect_msg(s, md.SEND_DATA_REQ)
 			if msg:
 				self.deal_send_data_request(s, msg, folder=self.model_save_path)

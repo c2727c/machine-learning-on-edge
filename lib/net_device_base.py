@@ -8,12 +8,12 @@ logging.basicConfig(level=logging.DEBUG)
 import conf.msg_dic as md
 
 
-def send_msg(skt, type, body):
+def send_msg(conn, type, body):
 	tlv_obj = TLV()
 	tlv_obj.add_obj(type, body)
 	msg = tlv_obj.pop_buf()
 	logging.debug('send_msg:| type-{} | length--{} | value-{} |'.format(type,len(msg), body))
-	skt.send(msg)
+	conn.send(msg)
 
 def try_connect_and_send_msg(skt,addr, t, v):
 	try:
@@ -44,16 +44,27 @@ def expect_msg(conn, exp_type):
 					logging.error("expect_msg:got wrong msg type:{}".format(msg['t'] ))
 					return None
 
-def send_file(socket, filename, step = 1024):
+def send_data(conn, filename, step = 1024):
     fp = open(filename, 'rb')
     while True:
         data = fp.read(step)
         if not data:
             logging.info("Upload success! file: {}, send over.".format(filename))
             break
-        socket.send(data)
+        conn.send(data)
     fp.close()
 
+def recv_data(socket, filename, filesize, step=2048):
+    recvsize = 0
+    fp = open(filename, 'wb')
+    while not recvsize == filesize:
+        if filesize - recvsize > step:
+            data = socket.recv(step)
+        else:
+            data = socket.recv(filesize - recvsize)
+        recvsize += len(data)
+        fp.write(data)
+    fp.close()
 
 class NetDeviceBase:
 
@@ -129,7 +140,7 @@ class NetDeviceBase:
 		# 4 try recv send_data_cfm from server
 		msg = expect_msg(conn, md.SEND_DATA_CFM)
 		if msg:
-			send_file(conn, filepath)
+			send_data(conn, filepath)
 			pass
 		else:
 			logging.error("Upload failed: expected cfm not received.")
@@ -157,7 +168,7 @@ class FileManagerBase:
 	@staticmethod
 	def get_remote_file_list(addr,type):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		if try_connect_and_send_msg(s, addr, md.GET_MODEL_LIST_REQ, type):
+		if try_connect_and_send_msg(s, addr, md.GET_FILE_LIST_REQ, type):
 			msg = expect_msg(s, md.GET_MODEL_LIST_CFM)
 			logging.debug('get_remote_file_list:msg:{}'.format(msg))
 			s.close()
@@ -165,3 +176,18 @@ class FileManagerBase:
 				return msg['v']
 		s.close()
 		return None
+
+	@staticmethod
+	def merge_list_with_mark(l_e, l_c, mark=['on_edge', 'on_cloud', 'on_both']):
+		i = 0
+		for l_e_i in l_e:
+			l_e_i['status'] = mark[0]
+		for l_c_i in l_c:
+			flag = True
+			for l_e_i in l_e:
+				if l_c_i['filename'] == l_e_i['filename']:
+					l_e_i['status'] = mark[2]
+					flag = False
+			if (flag):
+				l_c_i['status'] = mark[1]
+				l_e.append(l_c_i)

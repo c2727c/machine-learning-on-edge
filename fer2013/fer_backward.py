@@ -13,6 +13,11 @@ REGULARIZER = 1e-4
 STEPS = 1000
 MOVING_AVERAGE_DECAY = 0.99
 train_num_examples=28709
+
+
+trainning_progress = 0
+
+
 #定义反向传播
 def backward(batch_size = BATCH_SIZE, tfrecord_path = config.tfRecord_train,step_num = STEPS):
     # 输入x占位

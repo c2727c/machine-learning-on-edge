@@ -73,21 +73,24 @@ var modelGridPara = {
                     alert("ID: " + item.filename);
                     e.stopPropagation();
                 });
-               var $customButton2 = $("<button>")
-                    .html('训练')
-                    .click(function(e) {
-                       alert("ID: " + item.filename);
-                       e.stopPropagation();
-                    });
+//               var $customButton2 = $("<button>")
+//                    .attr("class","train_btn")
+//                    .html('训练')
+//                    .click(function(e) {
+//                        alert("ID: " + item.filename);
+//                        e.stopPropagation();
+//                    });
                var $customButton3 = $("<button>")
                     .html('设为当前')
                     .click(function(e) {
                        alert("ID: " + item.filename);
+                       $.get("/setting/setconfig?value="+item.filename+
+                       "&name=CURRENT_MODEL")
                        e.stopPropagation();
                     });
                 return $("<div>")
                         .append($customButton1)
-                        .append($customButton2)
+//                        .append($customButton2)
                         .append($customButton3);
             },
         }
@@ -126,14 +129,19 @@ var dataGridPara = {
                 });
                var $customButton2 = $("<button>")
                     .html('训练')
+                    .attr("class","train_btn")
                     .click(function(e) {
-                       alert("ID: " + item.filename);
+                       alert("ID:" + item.filename);
+                       $("#background").show();
+                       $("#input_id").val(item.filename);
                        e.stopPropagation();
                     });
                var $customButton3 = $("<button>")
                     .html('设为当前')
                     .click(function(e) {
                        alert("ID: " + item.filename);
+                       $.get("/setting/setconfig?value="+item.filename+
+                       "&name=DATASET_COLLECTING_CSV")
                        e.stopPropagation();
                     });
                 return $("<div>")

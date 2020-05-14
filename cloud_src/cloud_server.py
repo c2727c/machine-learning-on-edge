@@ -1,6 +1,5 @@
 # coding=utf-8
 from lib.TLV import *
-from lib.macro import *
 import os
 import logging
 logger = logging.getLogger()
@@ -13,7 +12,7 @@ logger.setLevel(10)
 import conf.parameters as para
 import conf.msg_dic as md
 import fer2013.fer_config as fer_conf
-from lib.net_device_base import NetDeviceBase,FileManagerBase,send_msg,expect_msg
+from lib.net_device_base import NetDeviceBase,FileManagerBase,send_msg,expect_msg,recv_data
 
 
 # class ENF:
@@ -53,10 +52,10 @@ class CloudServer(NetDeviceBase,FileManagerBase):
 					tp = msg['t']
 					if tp == md.SEND_DATA_REQ:
 						self.deal_send_data_req(conn, msg)
-					elif tp == md.GET_MODEL_LIST_REQ:
+					elif tp == md.GET_FILE_LIST_REQ:
 						# self.deal_get_model_list_req(conn, msg)
 						self.deal_get_model_list_req2(conn, msg)
-					elif tp == md.GET_MODEL_REQ:
+					elif tp == md.GET_FILE_REQ:
 						self.deal_get_model_req(conn, msg)
 					elif tp == md.TRAIN_MODEL_REQ:
 						self.deal_train_model_req(conn, msg)
@@ -76,7 +75,7 @@ class CloudServer(NetDeviceBase,FileManagerBase):
 			# 接收文件
 			new_filename = os.path.join(self.data_save_path, fname)
 			logging.info('Prepared to receive file! new filename:{0}, filesize:{1}'.format(new_filename, fsize))
-			recv_file(socket=conn, filename=new_filename, filesize=fsize)
+			recv_data(socket=conn, filename=new_filename, filesize=fsize)
 			logging.info('end receiving...')
 		else:
 			send_msg(conn, md.SEND_DATA_REJ, '')
