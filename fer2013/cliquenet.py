@@ -5,9 +5,9 @@ Yibo Yang, Zhisheng Zhong, Tiancheng Shen, Zhouchen Lin. Convolutional Neural Ne
 
 # 引入tensorflow模块
 import tensorflow as tf
+from fer_config import NUM_CHANNELS,OUTPUT_NODE
 
-NUM_CHANNELS=1
-OUTPUT_NODE=7
+
 # 定义获取指定形状权重张量的函数，输入为张量形状、正态分布的方差以及l2正则化的正则化系数
 def get_weight(shape, std, regularizer):
     # 使用截止正态分布对张量进行初始化，该正态分布的方差设为函数给定值，并设置为可训练的变量
