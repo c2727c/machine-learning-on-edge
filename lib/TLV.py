@@ -1,4 +1,3 @@
-from scapy.all import *
 import copy
 import pickle
 import logging
